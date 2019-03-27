@@ -20,11 +20,33 @@ var connection = mysql.createConnection({
 
 connection.connect()
 
+var transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL,
+      pass: process.env.EMAIL_PASS
+    }
+});
+
+var mailOptions = {
+    from: process.env.EMAIL,
+    to: process.env.EMAIL_TO,
+    subject: 'Log Files',
+    text: 'That was easy!',
+    attachments: [
+        {
+            filename: 'log.csv',
+            path: 'log.csv' // stream this file
+        }
+    ]
+};
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 var port = process.env.PORT || 3003;
 var event = express.Router();
+var log = express.Router();
 
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -46,6 +68,18 @@ event
         stream.end();
     });
 
+log
+    .get("/", (req, res) => {
+        transporter.sendMail(mailOptions, function(error, info){
+            if (error) {
+              console.log(error);
+            } else {
+              console.log('Email sent: ' + info.response);
+            }
+        }); 
+    });
+
 // This will serve the webpage
 app.use("/event", event);
+app.use("/log", log);
 app.listen(port, () => console.log("Listening on port " + port));
