@@ -5,6 +5,7 @@ var bodyParser = require("body-parser");
 const format = require("util").format;
 var uuid = require("uuid");
 var mysql = require('mysql');
+var fs = require("fs");
 
 if (process.env.ENVIRO != "PROD") {
     require('dotenv').config()
@@ -39,7 +40,10 @@ event
                     if (err) throw err
                     return res.json({success: true});
             }
-        )
+        );
+        var stream = fs.createWriteStream("log.csv", {flags:'a'});
+        stream.write(req.body.cc_id + "," + req.body.vm_id + "," + new Date().toISOString() + "," + req.body.event_type + "','" + req.body.vm_type + "\n");
+        stream.end();
     });
 
 // This will serve the webpage
