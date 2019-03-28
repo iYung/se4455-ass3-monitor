@@ -6,6 +6,7 @@ const format = require("util").format;
 var uuid = require("uuid");
 var mysql = require('mysql');
 var fs = require("fs");
+var nodemailer = require("nodemailer");
 
 if (process.env.ENVIRO != "PROD") {
     require('dotenv').config()
@@ -36,7 +37,7 @@ var mailOptions = {
     attachments: [
         {
             filename: 'log.csv',
-            path: 'log.csv' // stream this file
+            path: 'log.csv'
         }
     ]
 };
@@ -64,7 +65,7 @@ event
             }
         );
         var stream = fs.createWriteStream("log.csv", {flags:'a'});
-        stream.write(req.body.cc_id + "," + req.body.vm_id + "," + new Date().toISOString() + "," + req.body.event_type + "','" + req.body.vm_type + "\n");
+        stream.write(req.body.cc_id + ", " + req.body.vm_id + ", " + new Date().toISOString() + ", " + req.body.event_type + ", " + req.body.vm_type + "\n");
         stream.end();
     });
 
